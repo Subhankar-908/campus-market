@@ -1,7 +1,9 @@
 package com.ceog.campus_marketplace.Controller;
 
 import com.ceog.campus_marketplace.Dto.*;
+import com.ceog.campus_marketplace.Model.RefreshToken;
 import com.ceog.campus_marketplace.Model.User;
+import com.ceog.campus_marketplace.Repository.RefreshTokenRepository;
 import com.ceog.campus_marketplace.Service.AuthService;
 import com.ceog.campus_marketplace.WebSecurity.JwtUntil;
 import jakarta.validation.Valid;
@@ -25,6 +27,9 @@ import java.util.Map;
 public class AuthController {
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
 
 
     @PostMapping("/login")
@@ -63,6 +68,24 @@ public class AuthController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", e.getMessage()));
         }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenRefreshResponseDto> refresh(
+            @Valid @RequestBody TokenRefreshRequestDto request) {
+        return ResponseEntity.ok(authService.refreshAccessToken(request.getRefreshToken()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody TokenRefreshRequestDto request) {
+        try {
+            RefreshToken rt = refreshTokenRepository.findByToken(request.getRefreshToken())
+                    .orElse(null);
+            if (rt != null) {
+                refreshTokenRepository.delete(rt);
+            }
+        } catch (Exception ignored) {}
+        return ResponseEntity.ok(Map.of("message", "Logged out"));
     }
 }
 
