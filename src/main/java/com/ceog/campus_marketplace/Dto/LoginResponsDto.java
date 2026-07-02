@@ -17,6 +17,6 @@ public class LoginResponsDto {
     private String username;
     private String status;
     private String jwt;
-//    private String refreshToken;
+   private String refreshToken;
     private Set<String> roles;
 }
