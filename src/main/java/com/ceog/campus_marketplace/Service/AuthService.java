@@ -2,14 +2,18 @@ package com.ceog.campus_marketplace.Service;
 
 import com.ceog.campus_marketplace.Dto.*;
 
+import com.ceog.campus_marketplace.Model.Admin;
 import com.ceog.campus_marketplace.Model.RefreshToken;
+import com.ceog.campus_marketplace.Model.SuperAdmin;
 import com.ceog.campus_marketplace.Model.Type.RolesType;
 import com.ceog.campus_marketplace.Model.User;
 import com.ceog.campus_marketplace.Repository.AdminRepository;
+import com.ceog.campus_marketplace.Repository.SuperAdminRepository;
 import com.ceog.campus_marketplace.Repository.UserRepository;
 import com.ceog.campus_marketplace.WebSecurity.JwtUntil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -46,9 +50,13 @@ public class AuthService {
     private RefreshTokenService refreshTokenService;
 
 
+
+
    @Autowired
    private OtpService otpService;
 
+   @Autowired
+   private SuperAdminRepository superAdminRepository;
 
 
 
@@ -101,7 +109,7 @@ public class AuthService {
                         .username(dto.getUsername())
                         .college(dto.getCollege())
                         .password(passwordEncoder.encode(dto.getPassword()))
-                        .roles(Set.of(RolesType.USER))
+                        .roles(new java.util.HashSet<>(Set.of(RolesType.USER)))
                         .mobile(dto.getMobile())
                          .build());
 
@@ -136,5 +144,28 @@ public class AuthService {
         return "Password reset successfully";
     }
 
+    public ResponseEntity<?> bootstrap(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-}
+        if (!adminRepository.existsById(user.getId())) {
+            user.getRoles().add(RolesType.ADMIN);
+            userRepository.save(user);
+
+            Admin admin = Admin.builder().username(user.getUsername()).users(user).build();
+            adminRepository.save(admin);
+        }
+
+        if (!superAdminRepository.existsById(user.getId())) {
+            user.getRoles().add(RolesType.SUPER_ADMIN);
+            userRepository.save(user);
+
+            SuperAdmin superAdmin = SuperAdmin.builder().username(user.getUsername()).users(user).build();
+            superAdminRepository.save(superAdmin);
+        }
+
+        return ResponseEntity.ok("Admin + Super admin ensured for: " + user.getUsername());
+    }
+    }
+
+
