@@ -2,6 +2,7 @@ package com.ceog.campus_marketplace.Service;
 
 import com.ceog.campus_marketplace.Dto.*;
 
+import com.ceog.campus_marketplace.Model.RefreshToken;
 import com.ceog.campus_marketplace.Model.Type.RolesType;
 import com.ceog.campus_marketplace.Model.User;
 import com.ceog.campus_marketplace.Repository.AdminRepository;
@@ -41,6 +42,9 @@ public class AuthService {
     @Autowired
     private AdminRepository adminRepository;
 
+    @Autowired
+    private RefreshTokenService refreshTokenService;
+
 
    @Autowired
    private OtpService otpService;
@@ -56,11 +60,9 @@ public class AuthService {
                         loginRequest.getPassword())
         );
 
-
-
         User user         = (User) authentication.getPrincipal();
         String accessToken  = jwtUtil.generateToken(user);
-//        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
         Set<String> roleNames = user.getRoles().stream()
                 .map(Enum::name)
@@ -71,11 +73,17 @@ public class AuthService {
                 user.getUsername(),
                 "Login successful",
                 accessToken,
-//                refreshToken.getToken() ,  // send opaque refresh token to client
+                refreshToken.getToken() ,  // send opaque refresh token to client
                 roleNames
         );
     }
-
+    @Transactional
+    public TokenRefreshResponseDto refreshAccessToken(String refreshTokenStr) {
+        RefreshToken rt = refreshTokenService.verifyRefreshToken(refreshTokenStr);
+        User user = rt.getUser();
+        String newAccessToken = jwtUtil.generateToken(user);
+        return new TokenRefreshResponseDto(newAccessToken, rt.getToken(), "Bearer");
+    }
 
 
     //sign-in
