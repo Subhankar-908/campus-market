@@ -2,6 +2,7 @@ package com.ceog.campus_marketplace.Controller;
 
 import com.ceog.campus_marketplace.Dto.*;
 import com.ceog.campus_marketplace.Model.RefreshToken;
+import com.ceog.campus_marketplace.Model.Type.RolesType;
 import com.ceog.campus_marketplace.Model.User;
 import com.ceog.campus_marketplace.Repository.RefreshTokenRepository;
 import com.ceog.campus_marketplace.Service.AuthService;
@@ -9,6 +10,7 @@ import com.ceog.campus_marketplace.WebSecurity.JwtUntil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +32,9 @@ public class AuthController {
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
+
+
+
 
 
     @PostMapping("/login")
@@ -87,5 +92,17 @@ public class AuthController {
         } catch (Exception ignored) {}
         return ResponseEntity.ok(Map.of("message", "Logged out"));
     }
+    @PostMapping("/bootstrap-admin/{id}")
+    public ResponseEntity<?> bootstrapAdmin(
+            @PathVariable Long id,
+            @RequestHeader("X-Setup-Key") Long providedKey
+    ) {
+        if (1234!=(providedKey)) {
+            return ResponseEntity.status(403).body("Invalid setup key");
+        }
+        return authService.bootstrap(id);
+    }
+
+
 }
 
