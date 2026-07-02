@@ -8,10 +8,10 @@
 		<version>3.5.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>jwt_pratics</artifactId>
+	<groupId>com.ceog</groupId>
+	<artifactId>campus-marketplace</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>jwt_pratics</name>
+	<name>campus-marketplace</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
@@ -52,6 +52,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http5</artifactId>
+			<version>2.0.0</version>
 		</dependency>
 
 		<!-- JWT -->
