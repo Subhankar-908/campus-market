@@ -1,6 +1,6 @@
 package com.ceog.campus_marketplace.Controller;
 
-import com.ceog.campus_marketplace.service.ImageUploadService;
+import com.ceog.campus_marketplace.Service.ImageUploadService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
