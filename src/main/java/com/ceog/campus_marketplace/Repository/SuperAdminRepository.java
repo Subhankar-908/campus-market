@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface SuperAdminRepository extends JpaRepository<SuperAdmin,Long> {
     Optional<SuperAdmin> findById(Long id);
+    Optional<SuperAdmin> deleteByUsers(User user);
 }
