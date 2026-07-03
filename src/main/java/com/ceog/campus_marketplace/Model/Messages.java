@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.ZoneId;
 
 import java.time.LocalDateTime;
 
@@ -28,6 +29,6 @@ public class Messages {
     public Messages(String sender, String chat) {
         this.sender = sender;
         this.chat = chat;
-        this.time = LocalDateTime.now();
+        this.time = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
     }
 }
