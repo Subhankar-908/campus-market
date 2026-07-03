@@ -5,6 +5,7 @@ import com.ceog.campus_marketplace.Model.Product;
 import com.ceog.campus_marketplace.Model.Type.RolesType;
 import com.ceog.campus_marketplace.Model.User;
 import com.ceog.campus_marketplace.Repository.AdminRepository;
+import com.ceog.campus_marketplace.Repository.SuperAdminRepository;
 import com.ceog.campus_marketplace.Repository.UserRepository;
 import com.ceog.campus_marketplace.WebSecurity.JwtUntil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.ceog.campus_marketplace.Repository.RefreshTokenRepository; // adjust package if yours differs
 
 @Service
 public class UserService {
@@ -36,6 +38,10 @@ public class UserService {
 
     @Autowired
     private JwtUntil jwtUntil;
+    @Autowired
+    private SuperAdminRepository superAdminRepository;
+    @Autowired
+    private RefreshTokenRepository  refreshTokenRepository;
 
 
     @PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
@@ -219,8 +225,14 @@ public class UserService {
         System.out.println("user password: " + user.getPassword());
 
         if (encoder.matches(user1.getPassword(), user.getPassword())) {
+            refreshTokenRepository.deleteByUser(user);
+            refreshTokenRepository.flush();
+            superAdminRepository.deleteByUsers(user);
             adminRepository.deleteByUsers(user);
             userRepository.delete(user);
+
+
+
 
             return DeleteUserResponse.builder()
                     .success(true)
@@ -343,6 +355,8 @@ public class UserService {
 
         }
         adminRepository.deleteByUsers(targetUser);
+        refreshTokenRepository.deleteByUser(targetUser);
+        refreshTokenRepository.flush();
         userRepository.delete(targetUser);
         return DeleteUserResponse.builder()
                 .success(true)
