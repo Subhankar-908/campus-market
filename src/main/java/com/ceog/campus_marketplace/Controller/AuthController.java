@@ -50,9 +50,8 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDto dto) {
         try {
-            String otp = authService.sendForgotPasswordOtp(dto.getMobile());
-            // In dev, return OTP in response so frontend can show it (no SMS gateway yet)
-            return ResponseEntity.ok(Map.of("message", "OTP sent", "devOtp", otp));
+            String result = authService.sendForgotPasswordOtp(dto.getMobile());
+            return ResponseEntity.ok(Map.of("message", result));   // ← no devOtp anymore
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
         }
