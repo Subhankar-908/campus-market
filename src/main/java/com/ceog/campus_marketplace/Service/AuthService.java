@@ -49,7 +49,8 @@ public class AuthService {
     @Autowired
     private RefreshTokenService refreshTokenService;
 
-
+    @Autowired
+    private SmsService smsService;
 
 
    @Autowired
@@ -116,15 +117,14 @@ public class AuthService {
         return new SignUpResponsDto(user.getId(),user.getUsername());
     }
 
-
+    
 
     public String sendForgotPasswordOtp(String mobile) {
         User user = userRepository.findByMobile(mobile)
                 .orElseThrow(() -> new RuntimeException("No account found with this mobile number"));
         String otp = otpService.generateOtp(mobile);
-        // TODO: integrate real SMS gateway here. For now, log it (dev only).
-        System.out.println("OTP for " + mobile + " is: " + otp);
-        return otp; // returned only in dev — remove in production once SMS is wired up
+        smsService.sendOtpSms(mobile, otp);   // ← real SMS sent here
+        return "OTP sent to registered mobile number"; // don't leak OTP in prod
     }
 
     public boolean verifyOtp(String mobile, String otp) {
